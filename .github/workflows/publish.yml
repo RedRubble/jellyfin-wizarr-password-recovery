@@ -14,8 +14,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          path: Jellyfin.Plugin.PasswordRecovery
 
       - name: Install zip
         run: sudo apt-get update && sudo apt-get install -y zip
@@ -57,7 +55,6 @@ jobs:
 
       - name: Update manifest.json at root
         run: |
-          cd Jellyfin.Plugin.PasswordRecovery
           VERSION="${{ steps.package.outputs.version }}"
           SHA256="${{ steps.sha256.outputs.sha256 }}"
           ZIPNAME="${{ steps.sha256.outputs.zipname }}"
