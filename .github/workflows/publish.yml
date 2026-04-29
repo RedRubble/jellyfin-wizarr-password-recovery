@@ -18,8 +18,8 @@ jobs:
           fetch-depth: 0
           ref: master
 
-      - name: Install zip and md5sum
-        run: sudo apt-get update && sudo apt-get install -y zip md5sum
+      - name: Install zip
+        run: sudo apt-get update && sudo apt-get install -y zip
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -51,7 +51,12 @@ jobs:
       - name: Compute MD5
         id: sha256
         run: |
-          HASH=$(md5sum "${{ steps.package.outputs.zipfile }}" | cut -d ' ' -f1)
+          # md5sum is part of coreutils, but let's use openssl as fallback
+          if command -v md5sum &> /dev/null; then
+            HASH=$(md5sum "${{ steps.package.outputs.zipfile }}" | cut -d ' ' -f1)
+          else
+            HASH=$(openssl md5 "${{ steps.package.outputs.zipfile }}" | tr -d ' ')
+          fi
           echo "sha256=$HASH" >> $GITHUB_OUTPUT
           echo "zipname=$(basename ${{ steps.package.outputs.zipfile }})" >> $GITHUB_OUTPUT
           echo "downloadUrl=https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/releases/download/v${{ steps.package.outputs.version }}/$(basename ${{ steps.package.outputs.zipfile }})" >> $GITHUB_OUTPUT
