@@ -18,8 +18,8 @@ jobs:
           fetch-depth: 0
           ref: master
 
-      - name: Install zip
-        run: sudo apt-get update && sudo apt-get install -y zip
+      - name: Install zip and md5sum
+        run: sudo apt-get update && sudo apt-get install -y zip md5sum
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -48,10 +48,10 @@ jobs:
           echo "zipfile=$ZIPFILE" >> $GITHUB_OUTPUT
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Compute SHA256
+      - name: Compute MD5
         id: sha256
         run: |
-          HASH=$(sha256sum "${{ steps.package.outputs.zipfile }}" | cut -d ' ' -f1)
+          HASH=$(md5sum "${{ steps.package.outputs.zipfile }}" | cut -d ' ' -f1)
           echo "sha256=$HASH" >> $GITHUB_OUTPUT
           echo "zipname=$(basename ${{ steps.package.outputs.zipfile }})" >> $GITHUB_OUTPUT
           echo "downloadUrl=https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/releases/download/v${{ steps.package.outputs.version }}/$(basename ${{ steps.package.outputs.zipfile }})" >> $GITHUB_OUTPUT
