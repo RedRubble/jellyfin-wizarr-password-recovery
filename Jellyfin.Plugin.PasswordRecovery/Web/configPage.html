@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Password Recovery (for Wizarr)</title>
+</head>
+<body>
+<div id="PasswordRecoveryConfigPage" data-role="page" class="page type-interior pluginConfigurationPage">
+    <div data-role="content">
+        <div class="content-primary">
+            <form class="passwordRecoveryForm">
+                <p class="secondaryText">
+                    This plugin watches Jellyfin's ProgramData folder for <code>passwordreset*.json</code> files and automatically emails a Wizarr reset link.
+                </p>
+
+                <label class="checkboxContainer">
+                    <input id="Enabled" name="Enabled" type="checkbox" />
+                    <span>Enable password recovery automation</span>
+                </label>
+
+                <h3>Wizarr</h3>
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="WizarrBaseUrl">Base URL</label>
+                    <input class="emby-input" id="WizarrBaseUrl" name="WizarrBaseUrl" type="text" placeholder="http://wizarr:5690" />
+                </div>
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="WizarrApiKey">API Key (X-API-Key)</label>
+                    <input class="emby-input" id="WizarrApiKey" name="WizarrApiKey" type="password" />
+                </div>
+
+                <h3>SMTP</h3>
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="FromEmail">From email</label>
+                    <input class="emby-input" id="FromEmail" name="FromEmail" type="email" />
+                </div>
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="SmtpHost">SMTP host</label>
+                    <input class="emby-input" id="SmtpHost" name="SmtpHost" type="text" />
+                </div>
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="SmtpPort">SMTP port</label>
+                    <input class="emby-input" id="SmtpPort" name="SmtpPort" type="number" min="1" />
+                </div>
+                <label class="checkboxContainer">
+                    <input id="SmtpUseSsl" name="SmtpUseSsl" type="checkbox" />
+                    <span>Use SSL/TLS</span>
+                </label>
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="SmtpUsername">SMTP username</label>
+                    <input class="emby-input" id="SmtpUsername" name="SmtpUsername" type="text" />
+                </div>
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="SmtpPassword">SMTP password</label>
+                    <input class="emby-input" id="SmtpPassword" name="SmtpPassword" type="password" />
+                </div>
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="TestEmailTo">Test recipient email (optional)</label>
+                    <input class="emby-input" id="TestEmailTo" name="TestEmailTo" type="email" />
+                </div>
+
+                <h3>Email</h3>
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="EmailSubject">Subject</label>
+                    <input class="emby-input" id="EmailSubject" name="EmailSubject" type="text" />
+                </div>
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="EmailBodyTemplate">Body template</label>
+                    <textarea class="emby-input" id="EmailBodyTemplate" name="EmailBodyTemplate" rows="7"></textarea>
+                    <div class="fieldDescription">
+                        Available variables: <code>{username}</code>, <code>{reset_link}</code>
+                    </div>
+                </div>
+
+                <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="MinMinutesBetweenEmailsPerUser">Min minutes between emails per user</label>
+                    <input class="emby-input" id="MinMinutesBetweenEmailsPerUser" name="MinMinutesBetweenEmailsPerUser" type="number" min="1" />
+                </div>
+
+                <div>
+                    <button is="emby-button" type="submit" class="raised button-submit block emby-button">
+                        <span>Save</span>
+                    </button>
+                </div>
+                <div style="margin-top:10px;">
+                    <button is="emby-button" id="testWizarrBtn" type="button" class="raised emby-button">
+                        <span>Test Wizarr Connection</span>
+                    </button>
+                    <button is="emby-button" id="testSmtpBtn" type="button" class="raised emby-button" style="margin-left:8px;">
+                        <span>Test SMTP</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        (function () {
+            const pluginId = "d0b38ed3-8017-4e88-9c60-6d6b5e2b7f19";
+            const page = document.querySelector("#PasswordRecoveryConfigPage");
+
+            page.addEventListener("pageshow", function () {
+                Dashboard.showLoadingMsg();
+                ApiClient.getPluginConfiguration(pluginId).then(function (config) {
+                    page.querySelector("#Enabled").checked = config.Enabled ?? true;
+                    page.querySelector("#WizarrBaseUrl").value = config.WizarrBaseUrl ?? "";
+                    page.querySelector("#WizarrApiKey").value = config.WizarrApiKey ?? "";
+                    page.querySelector("#FromEmail").value = config.FromEmail ?? "";
+                    page.querySelector("#SmtpHost").value = config.SmtpHost ?? "";
+                    page.querySelector("#SmtpPort").value = config.SmtpPort ?? 587;
+                    page.querySelector("#SmtpUseSsl").checked = config.SmtpUseSsl ?? true;
+                    page.querySelector("#SmtpUsername").value = config.SmtpUsername ?? "";
+                    page.querySelector("#SmtpPassword").value = config.SmtpPassword ?? "";
+                    page.querySelector("#TestEmailTo").value = config.TestEmailTo ?? "";
+                    page.querySelector("#EmailSubject").value = config.EmailSubject ?? "";
+                    page.querySelector("#EmailBodyTemplate").value = config.EmailBodyTemplate ?? "";
+                    page.querySelector("#MinMinutesBetweenEmailsPerUser").value = config.MinMinutesBetweenEmailsPerUser ?? 10;
+                    Dashboard.hideLoadingMsg();
+                });
+            });
+
+            page.querySelector(".passwordRecoveryForm").addEventListener("submit", function (e) {
+                e.preventDefault();
+                Dashboard.showLoadingMsg();
+                ApiClient.getPluginConfiguration(pluginId).then(function (config) {
+                    config.Enabled = page.querySelector("#Enabled").checked;
+                    config.WizarrBaseUrl = page.querySelector("#WizarrBaseUrl").value;
+                    config.WizarrApiKey = page.querySelector("#WizarrApiKey").value;
+                    config.FromEmail = page.querySelector("#FromEmail").value;
+                    config.SmtpHost = page.querySelector("#SmtpHost").value;
+                    config.SmtpPort = parseInt(page.querySelector("#SmtpPort").value || "587", 10);
+                    config.SmtpUseSsl = page.querySelector("#SmtpUseSsl").checked;
+                    config.SmtpUsername = page.querySelector("#SmtpUsername").value;
+                    config.SmtpPassword = page.querySelector("#SmtpPassword").value;
+                    config.TestEmailTo = page.querySelector("#TestEmailTo").value;
+                    config.EmailSubject = page.querySelector("#EmailSubject").value;
+                    config.EmailBodyTemplate = page.querySelector("#EmailBodyTemplate").value;
+                    config.MinMinutesBetweenEmailsPerUser = parseInt(page.querySelector("#MinMinutesBetweenEmailsPerUser").value || "10", 10);
+                    ApiClient.updatePluginConfiguration(pluginId, config).then(Dashboard.processPluginConfigurationUpdateResult);
+                });
+            });
+
+            function notify(message, isError) {
+                if (Dashboard.toast) {
+                    Dashboard.toast({
+                        text: message,
+                        position: "bottom",
+                        background: isError ? "#d9534f" : "#2cbf6e"
+                    });
+                    return;
+                }
+                Dashboard.alert(message);
+            }
+
+            function getScheduledTaskByKey(taskKey) {
+                return ApiClient.getJSON(ApiClient.getUrl("ScheduledTasks")).then(function (tasks) {
+                    return (tasks || []).find(function (t) { return t.Key === taskKey; });
+                });
+            }
+
+            function parseTaskResult(task) {
+                const result = task && task.LastExecutionResult ? task.LastExecutionResult : null;
+                if (!result) return null;
+                const status = (result.Status || "").toLowerCase();
+                const msg = result.ErrorMessage || result.Message || "";
+                return { status, message: msg };
+            }
+
+            function waitForTaskCompletion(taskKey, startMs, timeoutMs) {
+                const pollEveryMs = 1200;
+                const deadline = Date.now() + timeoutMs;
+                return new Promise(function (resolve) {
+                    function poll() {
+                        getScheduledTaskByKey(taskKey).then(function (task) {
+                            const state = (task && task.State ? task.State : "").toLowerCase();
+                            const isIdle = !state || state === "idle";
+                            const result = parseTaskResult(task);
+                            const resultHasStartedAt = result && task && task.LastExecutionResult && task.LastExecutionResult.StartTimeUtc
+                                ? new Date(task.LastExecutionResult.StartTimeUtc).getTime() >= startMs - 1000
+                                : false;
+
+                            if (isIdle && result && resultHasStartedAt) {
+                                resolve(result);
+                                return;
+                            }
+
+                            if (Date.now() >= deadline) {
+                                resolve(null);
+                                return;
+                            }
+
+                            setTimeout(poll, pollEveryMs);
+                        }).catch(function () {
+                            if (Date.now() >= deadline) {
+                                resolve(null);
+                                return;
+                            }
+                            setTimeout(poll, pollEveryMs);
+                        });
+                    }
+
+                    poll();
+                });
+            }
+
+            function runTaskByKey(taskKey, startedMessage) {
+                const startMs = Date.now();
+                Dashboard.showLoadingMsg();
+                getScheduledTaskByKey(taskKey).then(function (task) {
+                    if (!task) {
+                        throw new Error("Task not found: " + taskKey);
+                    }
+                    return ApiClient.ajax({
+                        type: "POST",
+                        url: ApiClient.getUrl("ScheduledTasks/Running/" + task.Id)
+                    });
+                }).then(function () {
+                    Dashboard.hideLoadingMsg();
+                    notify(startedMessage, false);
+                    return waitForTaskCompletion(taskKey, startMs, 30000);
+                }).then(function (result) {
+                    if (!result) {
+                        notify("Test terminé en arrière-plan. Vérifie les logs Jellyfin pour le résultat détaillé.", false);
+                        return;
+                    }
+
+                    if (result.status === "completed") {
+                        notify("Test réussi.", false);
+                        return;
+                    }
+
+                    notify("Test échoué: " + (result.message || "consulte les logs Jellyfin."), true);
+                }).catch(function (err) {
+                    Dashboard.hideLoadingMsg();
+                    notify("Failed to run test: " + (err && err.message ? err.message : err), true);
+                });
+            }
+
+            page.querySelector("#testWizarrBtn").addEventListener("click", function () {
+                runTaskByKey("PasswordRecoveryTestWizarr", "Wizarr test task started.");
+            });
+            page.querySelector("#testSmtpBtn").addEventListener("click", function () {
+                runTaskByKey("PasswordRecoveryTestSmtp", "SMTP test task started.");
+            });
+        })();
+    </script>
+</div>
+</body>
+</html>
+

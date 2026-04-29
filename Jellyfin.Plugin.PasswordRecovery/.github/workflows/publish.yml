@@ -1,0 +1,138 @@
+name: Build & Publish Jellyfin Plugin
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore
+        run: dotnet restore ./src/Jellyfin.Plugin.WizarrPasswordRecovery
+
+      - name: Build
+        run: dotnet build ./src/Jellyfin.Plugin.WizarrPasswordRecovery -c Release
+
+      - name: Create dist directory
+        run: mkdir -p dist
+
+      - name: Package plugin
+        id: package
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          PLUGIN_NAME="Jellyfin.Plugin.WizarrPasswordRecovery"
+          OUTDIR="src/Jellyfin.Plugin.WizarrPasswordRecovery/bin/Release/net8.0"
+          ZIPFILE="dist/${PLUGIN_NAME}_${VERSION}.zip"
+          
+          zip -j "$ZIPFILE" "${OUTDIR}"/*
+          
+          echo "zipfile=$ZIPFILE" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Compute SHA256
+        id: sha256
+        run: |
+          HASH=$(sha256sum "${{ steps.package.outputs.zipfile }}" | cut -d ' ' -f1)
+          echo "sha256=$HASH" >> $GITHUB_OUTPUT
+          echo "zipname=$(basename ${{ steps.package.outputs.zipfile }})" >> $GITHUB_OUTPUT
+          echo "downloadUrl=https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/releases/download/v${{ steps.package.outputs.version }}/$(basename ${{ steps.package.outputs.zipfile }})" >> $GITHUB_OUTPUT
+
+      - name: Update manifest.json at root
+        run: |
+          VERSION="${{ steps.package.outputs.version }}"
+          SHA256="${{ steps.sha256.outputs.sha256 }}"
+          ZIPNAME="${{ steps.sha256.outputs.zipname }}"
+          DOWNLOAD_URL="${{ steps.sha256.outputs.downloadUrl }}"
+
+          cat > manifest.json << EOF
+          [
+            {
+              "guid": "d0b38ed3-8017-4e88-9c60-6d6b5e2b7f19",
+              "name": "Wizarr Password Recovery",
+              "overview": "Send password reset links through Wizarr instead of Jellyfin.",
+              "description": "This plugin disables Jellyfin's PIN-based reset and sends secure reset links via email using Wizarr.",
+              "owner": "${{ github.repository_owner }}",
+              "category": "Authentication",
+              "imageUrl": "https://raw.githubusercontent.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/master/Jellyfin.Plugin.PasswordRecovery/icon.png",
+              "versions": [
+                {
+                  "version": "$VERSION",
+                  "targetAbi": "10.11.0.0",
+                  "sourceUrl": "$DOWNLOAD_URL",
+                  "checksum": "$SHA256",
+                  "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+                }
+              ]
+            }
+          ]
+          EOF
+
+      - name: Commit manifest updates
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update manifest.json with version and checksum"
+          file_pattern: "*.json"
+          commit_user_name: GitHub Actions
+          commit_user_email: actions@github.com
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ steps.package.outputs.zipfile }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare GitHub Pages content
+        run: |
+          mkdir -p public/repository
+          cp -r dist public/
+          cp Jellyfin.Plugin.PasswordRecovery/icon.png public/ || echo "No icon found"
+          
+          VERSION="${{ steps.package.outputs.version }}"
+          SHA256="${{ steps.sha256.outputs.sha256 }}"
+          ZIPNAME=$(basename "${{ steps.package.outputs.zipfile }}")
+          REPO_NAME="${{ github.event.repository.name }}"
+          OWNER="${{ github.repository_owner }}"
+
+          cat <<EOF > public/repository/manifest.json
+          [
+            {
+              "guid": "d0b38ed3-8017-4e88-9c60-6d6b5e2b7f19",
+              "name": "Wizarr Password Recovery",
+              "overview": "Send password reset links through Wizarr instead of Jellyfin.",
+              "description": "This plugin disables Jellyfin's PIN-based reset and sends secure reset links via email using Wizarr.",
+              "owner": "$OWNER",
+              "category": "Authentication",
+              "imageUrl": "https://$OWNER.github.io/$REPO_NAME/icon.png",
+              "versions": [
+                {
+                  "version": "$VERSION",
+                  "targetAbi": "10.11.0.0",
+                  "sourceUrl": "https://$OWNER.github.io/$REPO_NAME/dist/$ZIPNAME",
+                  "checksum": "$SHA256",
+                  "timestamp": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+                }
+              ]
+            }
+          ]
+          EOF
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public

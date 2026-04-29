@@ -1,0 +1,43 @@
+# Build
+bin/
+obj/
+
+# User-specific files
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# VS Code
+.vscode/
+
+# JetBrains Rider
+.idea/
+
+# NuGet
+*.nupkg
+packages/
+*.snupkg
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary
+*.tmp
+*.temp
+
+# Jellyfin plugin build artifacts
+*.dll
+*.pdb
+*.deps.json
+*.runtimeconfig.json
+
+# Build outputs
+artifacts/
+dist/
+build/
