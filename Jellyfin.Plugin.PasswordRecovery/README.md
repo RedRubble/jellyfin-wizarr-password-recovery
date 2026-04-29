@@ -1,4 +1,4 @@
-[![Add to Jellyfin](https://img.shields.io/badge/Add%20to%20Jellyfin-Plugin%20Repository-blue?logo=jellyfin&style=for-the-badge)](https://stunbeta.github.io/jellyfin-wizarr-password-recovery/manifest.json)
+[![Add to Jellyfin](https://img.shields.io/badge/Add%20to%20Jellyfin-Plugin%20Repository-blue?logo=jellyfin&style=for-the-badge)](https://raw.githubusercontent.com/StunBeta/jellyfin-wizarr-password-recovery/master/manifest.json)
 
 # Wizarr Password Recovery — Jellyfin Plugin
 
@@ -22,16 +22,19 @@ This plugin watches Jellyfin’s internal password reset events, generates a sec
 
 ## 📦 Installation
 
-1. Open **Jellyfin Dashboard**  
-2. Go to **Plugins → Repositories**  
-3. Click **Add Repository**  
+1. Open **Jellyfin Dashboard**
+2. Go to **Plugins → Repositories**
+3. Click **Add Repository**
 4. Enter:
 
+| Setting | Value |
+|---------|-------|
+| Name | Wizarr Password Recovery |
+| URL | https://raw.githubusercontent.com/StunBeta/jellyfin-wizarr-password-recovery/master/manifest.json |
 
-Name: Wizarr Password Recovery
-URL: https://stunbeta.github.io/jellyfin-wizarr-password-recovery/manifest.json
+> **Note:** Replace `StunBeta/jellyfin-wizarr-password-recovery` with your repository if you fork this project.
 
-Save and restart Jellyfin
+5. Save and restart Jellyfin
 
 Go to **Plugins → Catalog**
 
