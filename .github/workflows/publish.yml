@@ -17,6 +17,9 @@ jobs:
         with:
           path: Jellyfin.Plugin.PasswordRecovery
 
+      - name: Install zip
+        run: sudo apt-get update && sudo apt-get install -y zip
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
