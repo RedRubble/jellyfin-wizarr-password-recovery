@@ -34,6 +34,10 @@
                     <input class="emby-input" id="FromEmail" name="FromEmail" type="email" />
                 </div>
                 <div class="inputContainer">
+                    <label class="inputLabel inputLabelUnfocused" for="FromDisplayName">From display name (optional)</label>
+                    <input class="emby-input" id="FromDisplayName" name="FromDisplayName" type="text" placeholder="e.g., Jellyfin Password Reset" />
+                </div>
+                <div class="inputContainer">
                     <label class="inputLabel inputLabelUnfocused" for="SmtpHost">SMTP host</label>
                     <input class="emby-input" id="SmtpHost" name="SmtpHost" type="text" />
                 </div>
@@ -105,6 +109,7 @@
                     page.querySelector("#WizarrBaseUrl").value = config.WizarrBaseUrl ?? "";
                     page.querySelector("#WizarrApiKey").value = config.WizarrApiKey ?? "";
                     page.querySelector("#FromEmail").value = config.FromEmail ?? "";
+                    page.querySelector("#FromDisplayName").value = config.FromDisplayName ?? "";
                     page.querySelector("#SmtpHost").value = config.SmtpHost ?? "";
                     page.querySelector("#SmtpPort").value = config.SmtpPort ?? 587;
                     page.querySelector("#SmtpUseSsl").checked = config.SmtpUseSsl ?? true;
@@ -126,6 +131,7 @@
                     config.WizarrBaseUrl = page.querySelector("#WizarrBaseUrl").value;
                     config.WizarrApiKey = page.querySelector("#WizarrApiKey").value;
                     config.FromEmail = page.querySelector("#FromEmail").value;
+                    config.FromDisplayName = page.querySelector("#FromDisplayName").value;
                     config.SmtpHost = page.querySelector("#SmtpHost").value;
                     config.SmtpPort = parseInt(page.querySelector("#SmtpPort").value || "587", 10);
                     config.SmtpUseSsl = page.querySelector("#SmtpUseSsl").checked;

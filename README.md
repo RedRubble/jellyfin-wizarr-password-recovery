@@ -66,6 +66,7 @@ This completely replaces Jellyfin’s PIN‑based reset mechanism.
 
 ### 📧 SMTP
 - **FromEmail**  
+- **FromName** (optional)  
 - **SmtpHost**  
 - **SmtpPort**  
 - **SmtpUseSsl**  
