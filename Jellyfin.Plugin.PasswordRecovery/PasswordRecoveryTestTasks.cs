@@ -140,7 +140,14 @@ public class SmtpConnectionTestTask : IScheduledTask
         var subject = "Password Recovery SMTP test";
         var body = "This is a test email from Jellyfin Password Recovery plugin.";
 
-        using var message = new MailMessage(config.FromEmail, to, subject, body);
+        var fromAddress = string.IsNullOrWhiteSpace(config.FromDisplayName)
+            ? new MailAddress(config.FromEmail)
+            : new MailAddress(config.FromEmail, config.FromDisplayName);
+        using var message = new MailMessage(fromAddress, new MailAddress(to))
+        {
+            Subject = subject,
+            Body = body
+        };
         using var smtp = new SmtpClient(config.SmtpHost, config.SmtpPort)
         {
             EnableSsl = config.SmtpUseSsl

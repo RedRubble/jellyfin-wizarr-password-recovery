@@ -404,7 +404,14 @@ private Task SendEmailAsync(PluginConfiguration config, string toEmail, string u
             .Replace("{username}", username, StringComparison.Ordinal)
             .Replace("{reset_link}", resetLink, StringComparison.Ordinal);
 
-        using var message = new MailMessage(config.FromEmail, toEmail, subject, body);
+        var fromAddress = string.IsNullOrWhiteSpace(config.FromDisplayName)
+            ? new MailAddress(config.FromEmail)
+            : new MailAddress(config.FromEmail, config.FromDisplayName);
+        using var message = new MailMessage(fromAddress, new MailAddress(toEmail))
+        {
+            Subject = subject,
+            Body = body
+        };
         using var smtp = new SmtpClient(config.SmtpHost, config.SmtpPort)
         {
             EnableSsl = config.SmtpUseSsl

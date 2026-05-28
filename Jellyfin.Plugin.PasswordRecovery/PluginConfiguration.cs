@@ -12,6 +12,8 @@ public class PluginConfiguration : BasePluginConfiguration
 
     public string FromEmail { get; set; } = string.Empty;
 
+    public string FromDisplayName { get; set; } = string.Empty;
+
     public string SmtpHost { get; set; } = string.Empty;
 
     public int SmtpPort { get; set; } = 587;
