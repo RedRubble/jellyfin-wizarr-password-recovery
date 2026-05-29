@@ -3,6 +3,7 @@ using MediaBrowser.Common.Configuration;
 using MediaBrowser.Common.Plugins;
 using MediaBrowser.Model.Plugins;
 using MediaBrowser.Model.Serialization;
+using Microsoft.Extensions.Logging;
 
 namespace Jellyfin.Plugin.PasswordRecovery;
 
@@ -16,10 +17,11 @@ public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
 
     public override string Description => "Automatically sends Wizarr password reset links when Jellyfin generates forgot-password PIN files.";
 
-    public Plugin(IApplicationPaths applicationPaths, IXmlSerializer xmlSerializer)
+    public Plugin(IApplicationPaths applicationPaths, IXmlSerializer xmlSerializer, ILogger<Plugin> logger)
         : base(applicationPaths, xmlSerializer)
     {
         Instance = this;
+        FileTransformationRegistrator.Register(logger);
     }
 
     public IEnumerable<PluginPageInfo> GetPages()

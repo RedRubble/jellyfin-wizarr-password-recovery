@@ -10,12 +10,12 @@ This plugin watches Jellyfin’s internal password reset events, generates a sec
 
 ## ✨ Features
 
-- Fully replaces Jellyfin’s built‑in password reset flow  
-- Generates secure reset links using **Wizarr**  
-- Sends reset emails via SMTP  
-- Anti‑spam throttling per user  
-- Independent test buttons (Wizarr + SMTP)  
-- Customizable email subject & body  
+- Fully replaces Jellyfin’s built‑in password reset flow
+- Generates secure reset links using **Wizarr**
+- Sends reset emails via SMTP
+- Anti‑spam throttling per user
+- Independent test buttons (Wizarr + SMTP)
+- Customizable email subject & body
 - Works on any Jellyfin server (Docker, bare metal, Windows, Linux)
 
 ---
@@ -27,10 +27,10 @@ This plugin watches Jellyfin’s internal password reset events, generates a sec
 3. Click **Add Repository**
 4. Enter:
 
-| Setting | Value |
-|---------|-------|
-| Name | Wizarr Password Recovery |
-| URL | https://raw.githubusercontent.com/StunBeta/jellyfin-wizarr-password-recovery/master/manifest.json |
+| Setting | Value                                                                                             |
+| ------- | ------------------------------------------------------------------------------------------------- |
+| Name    | Wizarr Password Recovery                                                                          |
+| URL     | https://raw.githubusercontent.com/StunBeta/jellyfin-wizarr-password-recovery/master/manifest.json |
 
 > **Note:** Replace `StunBeta/jellyfin-wizarr-password-recovery` with your repository if you fork this project.
 
@@ -44,14 +44,14 @@ Install **Wizarr Password Recovery**
 
 ## 🔧 How it works
 
-1. User triggers **“Forgot Password”** in Jellyfin.  
-2. Jellyfin writes a `passwordreset*.json` file in its **ProgramData** directory.  
+1. User triggers **“Forgot Password”** in Jellyfin.
+2. Jellyfin writes a `passwordreset*.json` file in its **ProgramData** directory.
 3. The plugin’s file watcher detects the file creation and reads:
    - `UserName`
-   - expiration timestamp  
+   - expiration timestamp
 4. The plugin communicates with Wizarr:
-   - `GET /users` → find the user’s email by username  
-   - `POST /users/{user_id}/reset-password` → generate a secure reset link  
+   - `GET /users` → find the user’s email by username
+   - `POST /users/{user_id}/reset-password` → generate a secure reset link
 5. The plugin sends the reset email via SMTP using your configured template.
 
 This completely replaces Jellyfin’s PIN‑based reset mechanism.
@@ -60,27 +60,35 @@ This completely replaces Jellyfin’s PIN‑based reset mechanism.
 
 ## ⚙️ Required setup (Plugin configuration page)
 
+### 🎞️ Jellyfin
+
+- **[File Transformations plugin]**(https://github.com/IAmParadox27/jellyfin-plugin-file-transformation) **installed**
+
 ### 🔗 Wizarr
-- **WizarrBaseUrl** (example: `http://wizarr:5690`)  
+
+- **WizarrBaseUrl** (example: `http://wizarr:5690`)
 - **WizarrApiKey**
 
 ### 📧 SMTP
-- **FromEmail**  
-- **SmtpHost**  
-- **SmtpPort**  
-- **SmtpUseSsl**  
-- **SmtpUsername** / **SmtpPassword** (if required)  
+
+- **FromEmail**
+- **SmtpHost**
+- **SmtpPort**
+- **SmtpUseSsl**
+- **SmtpUsername** / **SmtpPassword** (if required)
 - **TestEmailTo** (optional; used by the SMTP test button)
 
 ### ✉️ Email customization
-- **EmailSubject**  
-- **EmailBodyTemplate**  
+
+- **EmailSubject**
+- **EmailBodyTemplate**
   - Supports variables:
     - `{username}`
     - `{reset_link}`
 
 ### 🛡️ Anti‑spam
-- **MinMinutesBetweenEmailsPerUser**  
+
+- **MinMinutesBetweenEmailsPerUser**
   - Prevents repeated reset emails within a short time window.
 
 ---
@@ -89,10 +97,12 @@ This completely replaces Jellyfin’s PIN‑based reset mechanism.
 
 From the plugin configuration page, you can run:
 
-### **Test Wizarr Connection**  
+### **Test Wizarr Connection**
+
 Validates API key, base URL, and connectivity.
 
-### **Test SMTP**  
+### **Test SMTP**
+
 Sends a test email using your SMTP settings.
 
 ---
@@ -101,7 +111,7 @@ Sends a test email using your SMTP settings.
 
 This project is licensed under:
 
-**Creative Commons Attribution‑NonCommercial 4.0 International (CC BY‑NC 4.0)**  
+**Creative Commons Attribution‑NonCommercial 4.0 International (CC BY‑NC 4.0)**
 Free for personal use — **commercial use requires a paid license**.
 
 You are free to:
@@ -118,7 +128,6 @@ NonCommercial: You may not use the material for commercial purposes.
 
 Full license text:
 https://creativecommons.org/licenses/by-nc/4.0/legalcode
-
 
 ---
 
