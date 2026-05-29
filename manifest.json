@@ -4,16 +4,16 @@
     "name": "Wizarr Password Recovery",
     "overview": "Send password reset links through Wizarr instead of Jellyfin.",
     "description": "This plugin disables Jellyfin's PIN-based reset and sends secure reset links via email using Wizarr.",
-    "owner": "StunBeta",
+    "owner": "RedRubble",
     "category": "Authentication",
     "imageUrl": "https://raw.githubusercontent.com/RedRubble/jellyfin-wizarr-password-recovery/master/Jellyfin.Plugin.PasswordRecovery/icon.png",
     "versions": [
       {
-        "version": "1.2.4",
+        "version": "1.2.5",
         "targetAbi": "10.11.0.0",
-        "sourceUrl": "https://github.com/RedRubble/jellyfin-wizarr-password-recovery/releases/download/v1.2.4/Jellyfin.Plugin.WizarrPasswordRecovery_1.2.4.zip",
-        "checksum": "76c2a8cb8105fdda6eaf1065080d2085",
-        "timestamp": "2026-05-29T11:58:59Z"
+        "sourceUrl": "https://github.com/RedRubble/jellyfin-wizarr-password-recovery/releases/download/v1.2.5/Jellyfin.Plugin.WizarrPasswordRecovery_1.2.5.zip",
+        "checksum": "45e888650e965549c5195fdb2fdb847b",
+        "timestamp": "2026-05-29T03:54:34Z"
       }
     ]
   }
